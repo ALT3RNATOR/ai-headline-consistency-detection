@@ -5,11 +5,9 @@ An NLP-based system for detecting semantic inconsistencies between news headline
 
 ## Project Overview
 
-Misleading and clickbait headlines can misrepresent the content of a news article. A headline may exaggerate a claim, change a number or entity, reverse the meaning of a statement, or describe an event differently from the article.
+Misleading and clickbait headlines can misrepresent the content of a news article. This project investigates whether traditional text similarity and modern semantic similarity techniques can identify inconsistencies between a headline and its corresponding article text.
 
-This project investigates whether traditional text similarity and modern semantic similarity techniques can identify these inconsistencies.
-
-The experiment uses news datasets, prepares binary labels for the intended classification task, and introduces deliberately modified headlines to evaluate model robustness.
+The experiment uses news datasets, prepares data for binary classification, and introduces deliberately modified headlines to evaluate model robustness.
 
 ## Objectives
 
@@ -19,89 +17,67 @@ The experiment uses news datasets, prepares binary labels for the intended class
 - Evaluate performance using Accuracy, Precision, Recall, Macro-F1, and ROC-AUC.
 - Analyze the strengths and limitations of lexical versus semantic similarity.
 
-## Datasets
+## Dataset Download
 
-The repository contains the following prepared CSV files.
+The datasets used in this project are hosted on Google Drive to keep the GitHub repository lightweight.
 
-### 1. ISOT Dataset (`ISOT_DS.csv`)
+**[Download All Project Datasets from Google Drive](https://drive.google.com/drive/folders/1ppKWCanMYHJ7gOKSAB0nVhZPE5op66qC?usp=sharing)**
 
-This dataset contains news article information with the following columns:
+Open the folder and download the required CSV files before running the notebook.
 
-| Column | Description |
+### Datasets Included
+
+| File | Description |
 |---|---|
-| `title` | News headline or title |
-| `text` | Corresponding news article text |
-| `subject` | Subject or category associated with the article |
-| `date` | Article publication date, where available |
-| `label` | Numeric label retained or prepared for the dataset |
+| `ISOT_DS.csv` | News dataset containing article titles, article text, subject, date, and label columns. |
+| `FNC1_binary.csv` | Binary-labelled version of the FNC-1 dataset prepared for experimentation. |
+| `FNC1_merged.csv` | Merged FNC-1 dataset intended for consolidated preprocessing and analysis. |
+| `FNC1_binary_analysis.csv` | Dataset file intended for examining and analyzing the prepared binary FNC-1 data. |
 
-**Purpose:** To provide headline–article pairs for the consistency-detection experiment.
+### Dataset Preparation and Alterations
 
-**Preparation and alterations:**
-- Retained the headline and article text as the primary inputs.
-- Preserved subject and date as supplementary metadata.
-- Used a numeric label column for data processing.
-- Prepared the dataset for integration into the experimental workflow.
+**1. ISOT Dataset (`ISOT_DS.csv`)**
 
-**Important:** If the labels originate from the original ISOT dataset, they indicate article authenticity categories, not necessarily headline–article consistency. They must be verified or relabelled for this project.
+The dataset contains the following columns:
 
-### 2. FNC-1 Binary Dataset (`FNC1_binary.csv`)
+- `title`: News headline or title.
+- `text`: Corresponding news article text.
+- `subject`: Article subject or category.
+- `date`: Publication date, where available.
+- `label`: Numeric label retained or prepared for the dataset.
 
-This file contains a binary-labelled version of the Fake News Challenge (FNC-1) dataset.
+The headline and article text are the primary inputs for the similarity models. Subject and date can be retained as supplementary metadata.
 
-The original FNC-1 dataset includes stance categories such as `agree`, `disagree`, `discuss`, and `unrelated`.
+**Label clarification:** If the numeric labels originate from the original ISOT dataset, they indicate article authenticity categories rather than verified headline–article consistency. These labels must be independently checked or replaced with consistency labels for this project.
 
-**Purpose:** To support binary classification experiments using headline–article pairs.
+**2. FNC-1 Binary Dataset (`FNC1_binary.csv`)**
 
-**Preparation and alterations:**
-- Prepared the original stance data for a binary classification workflow.
-- Converted or organized the original labels into binary form, according to the preprocessing procedure.
-- Prepared the data for downstream model evaluation.
+The original Fake News Challenge (FNC-1) dataset contains stance categories such as `agree`, `disagree`, `discuss`, and `unrelated`.
 
-**Important:** Document the exact mapping from the original stance labels to `0` and `1`. Stance labels should not automatically be treated as headline-consistency labels.
+The binary version is intended to support experiments with two classes.
 
-### 3. FNC-1 Merged Dataset (`FNC1_merged.csv`)
+The exact mapping from the original stance categories to `0` and `1` must be documented according to the preprocessing code. Stance classification is not identical to headline-consistency detection.
 
-This file contains merged FNC-1 data intended for consolidated analysis and preprocessing.
+**3. FNC-1 Merged Dataset (`FNC1_merged.csv`)**
 
-**Purpose:** To provide a combined dataset for subsequent experimentation.
+This file contains a merged version of FNC-1 data intended for consolidated preprocessing and experimentation. The exact source tables, merge keys, and filtering operations depend on the preprocessing procedure.
 
-**Preparation and alterations:**
-- Consolidates relevant source data, if generated by merging the original FNC-1 tables.
-- Organizes data for downstream processing.
-- Supports preparation of headline–article pairs and their associated labels.
+**4. FNC-1 Binary Analysis Dataset (`FNC1_binary_analysis.csv`)**
 
-The exact merge procedure and retained columns should be documented according to the preprocessing code.
+This file is intended to support inspection and analysis of the prepared binary dataset, such as checking class distributions, labels, duplicates, and missing values. Its exact differences from `FNC1_binary.csv` should be confirmed from the processing code.
 
-### 4. FNC-1 Binary Analysis Dataset (`FNC1_binary_analysis.csv`)
+### Important Dataset Notes
 
-This file is intended for inspecting and analyzing the prepared binary FNC-1 dataset.
-
-**Purpose:** To support data-quality checks and exploratory analysis.
-
-Potential analyses include:
-- Class distribution.
-- Label verification.
-- Missing-value inspection.
-- Duplicate detection.
-- Comparison of processed records.
-
-The exact differences between this file and `FNC1_binary.csv` depend on the analysis or transformations performed.
-
-### Dataset Summary
-
-| Dataset | Intended purpose |
-|---|---|
-| `ISOT_DS.csv` | News headlines and article text |
-| `FNC1_binary.csv` | Binary-labelled FNC-1 data |
-| `FNC1_merged.csv` | Consolidated FNC-1 data |
-| `FNC1_binary_analysis.csv` | Analysis of prepared binary data |
-
-The filenames describe the prepared files. The precise transformations, label mappings, and merging operations should be verified from the scripts or notebooks used to create them.
+- Verify the meaning of every label before using it as a ground-truth consistency label.
+- Do not assume that article authenticity labels indicate whether a headline matches its article.
+- Document the binary-label mapping used for FNC-1.
+- Check for duplicate articles and overlapping examples across dataset splits.
+- Keep modified versions of an original article in the same data split to prevent leakage.
+- Respect the original datasets' licenses and redistribution conditions.
 
 ## Headline Modification Strategy
 
-To evaluate the ability to identify subtle mismatches, deliberately modified headlines will be created from original headline–article pairs.
+Deliberately modified headlines will be used to test the ability of the models to identify subtle inconsistencies.
 
 | Modification | Example |
 |---|---|
@@ -113,15 +89,15 @@ To evaluate the ability to identify subtle mismatches, deliberately modified hea
 | Context reversal | `Prices increased` → `Prices decreased` |
 | Exaggeration | `Potential treatment discovered` → `Guaranteed cure discovered` |
 
-These are examples of planned modifications. Each generated headline must be checked against its article and assigned a reliable ground-truth label.
+These examples describe the intended modification strategy. Each generated headline must be checked against its corresponding article and assigned a reliable ground-truth label.
 
 ## Approaches Compared
 
 ### 1. TF-IDF + Cosine Similarity
 
-TF-IDF (Term Frequency–Inverse Document Frequency) represents text using word-frequency statistics.
+TF-IDF (Term Frequency–Inverse Document Frequency) converts text into numerical vectors based on word-frequency statistics.
 
-The headline and article text are converted into numerical vectors. Cosine similarity measures the degree of lexical overlap between the vectors.
+Cosine similarity measures the lexical overlap between the headline and article vectors.
 
 **Advantages**
 - Computationally inexpensive.
@@ -135,11 +111,11 @@ The headline and article text are converted into numerical vectors. Cosine simil
 
 ### 2. Sentence Embeddings + Cosine Similarity
 
-This approach uses a pretrained Sentence Transformer model to convert headlines and news text into dense numerical vectors.
+This approach uses a pretrained Sentence Transformer to convert headlines and article text into dense numerical vectors.
 
 **Recommended model:** `sentence-transformers/all-MiniLM-L6-v2`
 
-The generated embeddings are compared using cosine similarity to estimate semantic relatedness.
+Cosine similarity is calculated between the resulting embeddings to estimate semantic relatedness.
 
 **Advantages**
 - Captures semantic relationships beyond exact word overlap.
@@ -153,15 +129,15 @@ The generated embeddings are compared using cosine similarity to estimate semant
 
 ## Evaluation Metrics
 
-Both approaches will be evaluated using the same test examples and ground-truth labels.
+Both approaches will be evaluated using the same held-out test examples and ground-truth labels.
 
 - **Accuracy:** Overall proportion of correct predictions.
 - **Precision:** Proportion of predicted positive cases that are actually positive.
 - **Recall:** Proportion of actual positive cases correctly identified.
-- **Macro-F1:** Average F1-score across the two classes, giving each class equal importance.
+- **Macro-F1:** Average F1-score across both classes, giving each class equal importance.
 - **ROC-AUC:** Measures the ability to rank positive examples above negative examples across different thresholds.
 
-**Note:** Calculate ROC-AUC using continuous similarity scores with a consistent score direction, rather than only binary predictions.
+**Note:** ROC-AUC should be calculated using continuous similarity scores with a consistent score direction, rather than only binary class predictions.
 
 ## Project Flowcharts
 
@@ -183,16 +159,57 @@ Both approaches will be evaluated using the same test examples and ground-truth 
 - Matplotlib
 - Jupyter Notebook
 
+## How to Run the Project
+
+### Step 1: Clone the Repository
+
+```bash
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+cd ai-headline-consistency-detection
+```
+
+Replace the placeholder with your actual GitHub repository URL.
+
+### Step 2: Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Step 3: Download the Datasets
+
+Download the required CSV files from the [Google Drive dataset folder](https://drive.google.com/drive/folders/1ppKWCanMYHJ7gOKSAB0nVhZPE5op66qC?usp=sharing).
+
+Create a `data` folder in the repository and place the downloaded files inside it.
+
+The directory should look like this:
+
+```text
+data/
+├── ISOT_DS.csv
+├── FNC1_binary.csv
+├── FNC1_binary_analysis.csv
+└── FNC1_merged.csv
+```
+
+Update the paths in the notebook if your filenames or directory structure differ.
+
+### Step 4: Run the Notebook
+
+Open and execute:
+
+```text
+notebooks/headline_consistency_analysis.ipynb
+```
+
+The notebook will implement the similarity approaches, perform the evaluation, and generate the comparison results.
+
 ## Repository Structure
 
 ```text
 ai-headline-consistency-detection/
 │
-├── data/
-│   ├── ISOT_DS.csv
-│   ├── FNC1_binary.csv
-│   ├── FNC1_binary_analysis.csv
-│   └── FNC1_merged.csv
+├── data/                         # Downloaded datasets (not necessarily committed)
 │
 ├── notebooks/
 │   └── headline_consistency_analysis.ipynb
@@ -213,42 +230,42 @@ ai-headline-consistency-detection/
 └── README.md
 ```
 
-This structure is illustrative. Update the paths to match the files actually present in the repository.
+The structure is illustrative. Update it to match the files actually present in the repository.
 
 ## Experimental Procedure
 
-1. Load and inspect the datasets.
-2. Validate column names, missing values, duplicates, and label distributions.
+1. Download and inspect the datasets.
+2. Validate columns, missing values, duplicates, and label distributions.
 3. Define and verify the binary-label mapping for each dataset.
 4. Prepare or verify headline-consistency labels.
 5. Split original articles into training, validation, and test sets before generating modified headlines.
-6. Keep modified variants of each original article within the same split to prevent data leakage.
+6. Keep modified variants of each original article in the same split.
 7. Calculate TF-IDF vectors and cosine similarity.
 8. Generate sentence embeddings using `all-MiniLM-L6-v2` and calculate cosine similarity.
-9. Select classification thresholds using the validation set.
-10. Evaluate both approaches on the same test set.
-11. Compare the five metrics and inspect incorrect predictions.
+9. Select classification thresholds using validation data.
+10. Evaluate both approaches on the same test examples.
+11. Compare the five evaluation metrics and inspect incorrect predictions.
 
 ## Expected Outcomes
 
-The project aims to provide a comparative analysis of:
+The project aims to compare:
 
 - Lexical similarity using TF-IDF.
 - Semantic similarity using sentence embeddings.
 - Performance on original headline–article pairs.
-- Robustness to deliberately modified headlines.
+- Robustness against deliberately modified headlines.
 - Differences in Accuracy, Precision, Recall, Macro-F1, and ROC-AUC.
 - Computational requirements and common prediction errors.
 
-Actual performance results will be reported after the experiments have been completed.
+Actual results will be reported after the experiments have been completed.
 
 ## Limitations
 
 This project evaluates headline–article consistency rather than independently verifying the truthfulness of a news article.
 
-A headline can accurately represent a false claim made in an article and still be consistent with that article. Similarly, similarity scores alone cannot reliably establish factual entailment or contradiction.
+A headline can accurately represent a false claim made in an article and still be consistent with that article. Similarity scores alone cannot reliably establish factual entailment or contradiction.
 
-Reliable labels, realistic headline modifications, and leakage-free evaluation are therefore essential.
+The quality of the results depends on reliable labels, realistic headline modifications, and leakage-free evaluation.
 
 ## Academic Context
 
